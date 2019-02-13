@@ -1,0 +1,9 @@
+name: ImyvmTown
+version: 0.1
+main: com.imyvm.ImyvmTown.Main
+api-version: 1.13
+
+commands:
+  itown:
+    description: All commands
+    aliases: [imyvmtown]

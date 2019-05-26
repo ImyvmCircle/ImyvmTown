@@ -2,7 +2,9 @@ package com.imyvm.ImyvmTown.GUI;
 
 import com.imyvm.ImyvmTown.Configuration;
 import com.imyvm.ImyvmTown.Main;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -34,19 +36,19 @@ public class GUIs {
 
 
         lore0.add("点击进入");
-        ItemStack itemStack0 = createItem("SIGN", "§f我的村落", lore0);
+        ItemStack itemStack0 = createItem("STRUCTURE_VOID", "§f我的村落", lore0);
         inv.setItem(0, itemStack0);
 
         lore10.add("点击查看");
-        ItemStack itemStack10 = createItem("SIGN", "§f村落列表", lore10);
+        ItemStack itemStack10 = createItem("STRUCTURE_VOID", "§f村落列表", lore10);
         inv.setItem(10, itemStack10);
 
         lore13.add("点击查看");
-        ItemStack itemStack13 = createItem("SIGN", "§f村落创建", lore13);
+        ItemStack itemStack13 = createItem("STRUCTURE_VOID", "§f村落创建", lore13);
         inv.setItem(13, itemStack13);
 
         lore16.add("点击查看");
-        ItemStack itemStack16 = createItem("SIGN", "§f申请中村落", lore16);
+        ItemStack itemStack16 = createItem("STRUCTURE_VOID", "§f申请中村落", lore16);
         inv.setItem(16, itemStack16);
 
         File file = plugin.playerinfo;
@@ -55,19 +57,21 @@ public class GUIs {
         FileConfiguration data = conf.load(file1);
         String StringUUID = playerinfo.getString("players." + player.getUniqueId().toString());
         if ((StringUUID != null) && (data.getConfigurationSection("towns." + StringUUID) != null)) {
-            if (data.getConfigurationSection("towns." + StringUUID).getStringList("assistant").
+            if ((!data.getConfigurationSection("towns." + StringUUID).getString("status").
+                    equalsIgnoreCase("§4deleted")) &&
+                    (data.getConfigurationSection("towns." + StringUUID).getStringList("assistant").
                     contains(player.getUniqueId().toString()) || player.getUniqueId().toString().
-                    equalsIgnoreCase(StringUUID)) {
+                            equalsIgnoreCase(StringUUID))) {
                 List<String> lore9 = new ArrayList<>();
                 lore9.add("点击查看");
-                ItemStack itemStack9 = createItem("SIGN", "§f村落管理", lore9);
+                ItemStack itemStack9 = createItem("BELL", "§f村落管理", lore9);
                 inv.setItem(9, itemStack9);
             }
         }
         if (player.isOp()) {
             List<String> lore18 = new ArrayList<>();
             lore18.add("点击查看");
-            ItemStack itemStack18 = createItem("SIGN", "§f村落审核", lore18);
+            ItemStack itemStack18 = createItem("BOOK", "§f村落审核", lore18);
             inv.setItem(18, itemStack18);
         }
 
@@ -114,8 +118,9 @@ public class GUIs {
             lores.add("§f联系方式: §7" + conf.getString("contact"));
             lores.add("§f状态: §7" + conf.getString("status"));
             lores.add("§f点击申请加入或进入村落菜单");
-            // TODO
-            ItemStack item = createItem("SIGN", conf.getString("name"), lores);
+            // TODO add more introductions
+            ItemStack item = createItem(conf.getItemStack("Banner", new ItemStack(Material.WHITE_BANNER)),
+                    conf.getString("name"), lores);
             inv.addItem(item);
         }
 
@@ -151,7 +156,7 @@ public class GUIs {
             List<String> playersUUID = config.getStringList("players");
             List<String> playersName = new ArrayList<>();
             for (String uuid : playersUUID) {
-                playersName.add(Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName());
+                playersName.add(Bukkit.getServer().getOfflinePlayer(UUID.fromString(uuid)).getName());
             }
 
             lores.add(a);
@@ -165,8 +170,8 @@ public class GUIs {
             }
             lores.add("---------");
             lores.add(info);
-            // TODO
-            ItemStack item = createItem("SIGN", config.getString("name"), lores);
+            // TODO add more apply information
+            ItemStack item = createItem("STRUCTURE_VOID", config.getString("name"), lores);
             inv.addItem(item);
         }
 
@@ -191,7 +196,7 @@ public class GUIs {
         List<String> playersUUID = config.getStringList("players");
         List<String> playersName = new ArrayList<>();
         for (String uuid : playersUUID) {
-            playersName.add(Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName());
+            playersName.add(Bukkit.getServer().getOfflinePlayer(UUID.fromString(uuid)).getName());
         }
         lores.add(uuidString);
         lores.add("§f申请者: §7" + config.getString("ApplyPlayer"));
@@ -211,11 +216,11 @@ public class GUIs {
                         " §f~ X: §7" + df.format(location2.getX()) + " §fZ: §7" + df.format(location2.getZ()));
             }
         }
-        // TODO
-        ItemStack item1 = createItem("SIGN", config.getString("name"), lores);
-        ItemStack item2 = createItem("SIGN", "§2通过", Arrays.asList("Imyvm_Admin"));
-        ItemStack item3 = createItem("SIGN", "§4拒绝", Arrays.asList("Imyvm_Admin"));
-        ItemStack item4 = createItem("SIGN", "§f返回", Arrays.asList("点击返回"));
+        // TODO add more information for es.
+        ItemStack item1 = createItem("STRUCTURE_VOID", config.getString("name"), lores);
+        ItemStack item2 = createItem("GREEN_CONCRETE", "§2通过", Arrays.asList("Imyvm_Admin"));
+        ItemStack item3 = createItem("RED_CONCRETE", "§4拒绝", Arrays.asList("Imyvm_Admin"));
+        ItemStack item4 = createItem("BARRIER", "§f返回", Arrays.asList("点击返回"));
 
         inv.addItem(item1);
         inv.setItem(5, item2);
@@ -244,48 +249,48 @@ public class GUIs {
         List<String> assistantuuid = conf.getStringList("assistant");
         List<String> assistant = new ArrayList<>();
         if (!assistantuuid.isEmpty()) {
-            assistant.add(Bukkit.getOfflinePlayer(UUID.fromString(assistantuuid.get(0))).getName());
+            assistant.add(Bukkit.getServer().getOfflinePlayer(UUID.fromString(assistantuuid.get(0))).getName());
         }
         assistant.add("点击修改/添加");
         DecimalFormat df = new DecimalFormat("0.0");
 
-        ItemStack item1 = createItem("SIGN", conf.getString("name"), lores);
-        ItemStack item2 = createItem("SIGN", "§fID", Arrays.asList(stringUUID));
-        ItemStack item3 = createItem("SIGN", "§f联系方式", Arrays.asList(conf.getString("contact", "暂无"), "点击修改"));
-        ItemStack item4 = createItem("SIGN", "§f加入条件", Arrays.asList(conf.getString("requirements"), "点击修改"));
+        ItemStack item1 = createItem("STRUCTURE_VOID", conf.getString("name"), lores);
+        ItemStack item2 = createItem("BIRCH_SIGN", "§fID", Arrays.asList(stringUUID));
+        ItemStack item3 = createItem("BIRCH_SIGN", "§f联系方式", Arrays.asList(conf.getString("contact", "暂无"), "点击修改"));
+        ItemStack item4 = createItem("BIRCH_SIGN", "§f加入条件", Arrays.asList(conf.getString("requirements"), "点击修改"));
 
-        ItemStack itemStack = conf.getItemStack("Banner", new ItemStack(Material.SIGN));
+        ItemStack itemStack = conf.getItemStack("Banner", new ItemStack(Material.BIRCH_SIGN));
         ItemStack item5 = createItem(itemStack, "§f村落旗帜", Arrays.asList(conf.getString("declaration"), "点击修改"));
 
-        ItemStack item6 = createItem("SIGN", "§f村落传送点", Arrays.asList(conf.getString("tplocation"), "点击修改"));
+        ItemStack item6 = createItem("BIRCH_SIGN", "§f村落传送点", Arrays.asList(conf.getString("tplocation"), "点击修改"));
         if (conf.get("tplocation") != null) {
             Location location = (Location) conf.get("tplocation");
-            item6 = createItem("SIGN", "§f村落传送点", Arrays.asList("§fworld: §7" + location.getWorld(),
+            item6 = createItem("BIRCH_SIGN", "§f村落传送点", Arrays.asList("§fworld: §7" + location.getWorld(),
                     "§fX: §7" + df.format(location.getX()), "§fY: §7" + df.format(location.getY())
                     , "§fZ: §7" + df.format(location.getZ()), "点击修改"));
         }
 
-        ItemStack itemStack1 = conf.getItemStack("Items", new ItemStack(Material.SIGN));
+        ItemStack itemStack1 = conf.getItemStack("Items", new ItemStack(Material.BIRCH_SIGN));
         ItemStack item7 = createItem(itemStack1, "§f吉祥物", Arrays.asList(conf.getString("declaration"), "点击修改"));
 
-        ItemStack item8 = createItem("SIGN", "§f村落口号", Arrays.asList(conf.getString("declaration"), "点击修改"));
-        ItemStack item9 = createItem("SIGN", "§f助理", assistant);
-        ItemStack item10 = createItem("SIGN", "§f申请审核", Arrays.asList("点击查看"));
-        ItemStack item11 = createItem("SIGN", "§f人员管理", Arrays.asList("点击查看"));
+        ItemStack item8 = createItem("BIRCH_SIGN", "§f村落口号", Arrays.asList(conf.getString("declaration"), "点击修改"));
+        ItemStack item9 = createItem("PLAYER_HEAD", "§f助理", assistant);
+        ItemStack item10 = createItem("BIRCH_SIGN", "§f申请审核", Arrays.asList("点击查看"));
+        ItemStack item11 = createItem("BIRCH_SIGN", "§f人员管理", Arrays.asList("点击查看"));
 
 
-        ItemStack item12 = createItem("SIGN", "§f村落范围", Arrays.asList("左击设置第一个点", "右击设置第二个点"));
+        ItemStack item12 = createItem("MAP", "§f村落范围", Arrays.asList("左击设置第一个点", "右击设置第二个点"));
         if (conf.get("location1") != null && conf.get("location2") != null) {
             Location location1 = (Location) conf.get("location1");
             Location location2 = (Location) conf.get("location2");
 
-            item12 = createItem("SIGN", "§f村落范围", Arrays.asList("§fworld: §7" + location1.getWorld(),
+            item12 = createItem("MAP", "§f村落范围", Arrays.asList("§fworld: §7" + location1.getWorld(),
                     "§fX: §7" + df.format(location1.getX()) + " §fZ: §7" + df.format(location1.getZ()) +
                             " §f~ X: §7" + df.format(location2.getX()) + " §fZ: §7" + df.format(location2.getZ()),
                     "左击设置第一个点", "右击设置第二个点"));
         }
 
-        ItemStack item13 = createItem("SIGN", "§f村落解散", Arrays.asList("危险"));
+        // ItemStack item13 = createItem("BLACK_GLAZED_TERRACOTTA", "§f村落解散", Arrays.asList("危险"));
 
         inv.setItem(4, item1);
         inv.setItem(10, item2);
@@ -319,13 +324,17 @@ public class GUIs {
         List<String> ApplyPlayers = conf.getStringList("ApplyPlayers");
 
         for (String a : ApplyPlayers) {
-            OfflinePlayer player1 = Bukkit.getOfflinePlayer(UUID.fromString(a));
-            String name = player1.getName();
+
+            // OfflinePlayer player1 = Bukkit.getOfflinePlayer(UUID.fromString(a));
+            String name = plugin.ess.getUser(UUID.fromString(a)).getDisplayName();
             ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
             meta.setDisplayName(name);
-            meta.setOwningPlayer(player1);
+            if (!(Bukkit.getPlayerExact(plugin.ess.getUser(UUID.fromString(a)).getName()) == null)) {
+                meta.setOwningPlayer(Bukkit.getPlayerExact(plugin.ess.getUser(UUID.fromString(a)).getName()));
+            }
             List<String> lore = new ArrayList<>();
+            lore.add(a);
             lore.add("§2点击审核");
             meta.setLore(lore);
             item.setItemMeta(meta);
@@ -353,10 +362,10 @@ public class GUIs {
             return;
         }
 
-        ItemStack item1 = createItem("SIGN", "§f传送中心", Arrays.asList("点击传送"));
-        ItemStack item2 = createItem("SIGN", "§f每日奖励", Arrays.asList("点击领取"));
-        ItemStack item3 = createItem("SIGN", "§f徽章领取", Arrays.asList("点击领取"));
-        ItemStack item4 = createItem("SIGN", "§f退出村落", Arrays.asList("点击退出"));
+        ItemStack item1 = createItem("END_PORTAL_FRAME", "§f传送中心", Arrays.asList("点击传送"));
+        ItemStack item2 = createItem("GOLD_INGOT", "§f每日奖励", Arrays.asList("点击领取"));
+        ItemStack item3 = createItem("NETHER_STAR", "§f徽章领取", Arrays.asList("点击领取"));
+        ItemStack item4 = createItem("IRON_DOOR", "§f退出村落", Arrays.asList("点击退出"));
 
         inv.setItem(0, item1);
         inv.setItem(1, item2);
@@ -381,13 +390,16 @@ public class GUIs {
         List<String> playersUUID = conf.getStringList("players");
 
         for (String uuid : playersUUID) {
-            OfflinePlayer player1 = Bukkit.getOfflinePlayer(UUID.fromString(uuid));
-            String name = player1.getName();
+            // OfflinePlayer player1 = Bukkit.getOfflinePlayer(UUID.fromString(uuid));
+            String name = plugin.ess.getUser(UUID.fromString(uuid)).getDisplayName();
             ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
             meta.setDisplayName(name);
-            meta.setOwningPlayer(player1);
+            if (!(Bukkit.getPlayerExact(plugin.ess.getUser(UUID.fromString(uuid)).getName()) == null)) {
+                meta.setOwningPlayer(Bukkit.getPlayerExact(plugin.ess.getUser(UUID.fromString(uuid)).getName()));
+            }
             List<String> lore = new ArrayList<>();
+            lore.add(uuid);
             lore.add(s);
             meta.setLore(lore);
             item.setItemMeta(meta);
@@ -406,17 +418,16 @@ public class GUIs {
     public void OpenApplyPlayersAdminGUI(Player player, String inv_name, ItemStack itemStack) {
         Inventory inv = Bukkit.createInventory(null, 9, inv_name);
 
-        ItemMeta itemMeta = itemStack.getItemMeta();
-
-        List<String> lores = new ArrayList<>();
+        List<String> lore = itemStack.getItemMeta().getLore();
+        lore.remove(1);
+        itemStack.getItemMeta().setLore(lore);
 
         // TODO
-        ItemStack item1 = createItem(itemStack, itemMeta.getDisplayName(), lores);
-        ItemStack item2 = createItem("SIGN", "§2通过", Arrays.asList("Imyvm_Admin"));
-        ItemStack item3 = createItem("SIGN", "§4拒绝", Arrays.asList("Imyvm_Admin"));
-        ItemStack item4 = createItem("SIGN", "§f返回", Arrays.asList("点击返回"));
+        ItemStack item2 = createItem("GREEN_CONCRETE", "§2通过", Arrays.asList("Imyvm_Admin"));
+        ItemStack item3 = createItem("RED_CONCRETE", "§4拒绝", Arrays.asList("Imyvm_Admin"));
+        ItemStack item4 = createItem("BARRIER", "§f返回", Arrays.asList("点击返回"));
 
-        inv.addItem(item1);
+        inv.addItem(itemStack);
         inv.setItem(5, item2);
         inv.setItem(6, item3);
         inv.setItem(8, item4);

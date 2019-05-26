@@ -5,6 +5,7 @@ import com.imyvm.ImyvmTown.Commands.Commands;
 import com.imyvm.ImyvmTown.GUI.GUIs;
 import com.imyvm.ImyvmTown.Listener.Chat;
 import com.imyvm.ImyvmTown.Listener.ClickItem;
+import com.imyvm.ImyvmTown.Listener.RegionListener;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -29,6 +30,7 @@ public class Main extends JavaPlugin {
     public Commands commands;
     public Chat chat;
     public ClickItem clickItem;
+    public RegionListener regionListener;
     public Essentials ess;
     private static Economy econ = null;
 
@@ -57,6 +59,8 @@ public class Main extends JavaPlugin {
         config.addDefault("RewardBase", 100);
         config.addDefault("TradeUUID", "a641c611-21ef-4b71-b327-e45ef8fdf647");
         config.addDefault("Token-ID", "XXX");
+        config.addDefault("JoinFee", 1000);
+        config.addDefault("LeaveFee", 1000);
 
         rewardsInfo.options().copyDefaults(true);
         config.options().copyDefaults(true);
@@ -80,6 +84,7 @@ public class Main extends JavaPlugin {
         commands = new Commands(this);
         chat = new Chat(this);
         clickItem = new ClickItem(this);
+        regionListener = new RegionListener(this);
         getCommand("itown").setExecutor(commands);
     }
 

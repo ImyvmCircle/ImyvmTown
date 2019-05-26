@@ -4,7 +4,6 @@ import com.earth2me.essentials.User;
 import com.imyvm.ImyvmTown.Configuration;
 import com.imyvm.ImyvmTown.Discord.WebHook;
 import com.imyvm.ImyvmTown.Main;
-
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -199,7 +198,7 @@ public class Commands implements CommandExecutor {
                 }
                 if (addlocation(player, args[0])) {
                     economy.withdrawPlayer(player, fee);
-                    economy.depositPlayer(Bukkit.getOfflinePlayer(UUID.fromString(plugin.config.
+                    economy.depositPlayer(Bukkit.getServer().getOfflinePlayer(UUID.fromString(plugin.config.
                             getString("TradeUUID"))), fee);
                     player.sendMessage("§c村落传送点设置成功, 消费" + plugin.config.getDouble("ChangeTpLocationFee") + " D");
                     return true;
@@ -267,6 +266,11 @@ public class Commands implements CommandExecutor {
             if (dataConf.getConfigurationSection("towns." + stringUUID).getString("status")
                     .equalsIgnoreCase("§4locked")) {
                 player.sendMessage("§4你的村落已被锁定");
+                return false;
+            }
+            if (dataConf.getConfigurationSection("towns." + stringUUID).getString("status")
+                    .equalsIgnoreCase("§4deleted")) {
+                player.sendMessage("§4你的村落暂未创建成功！");
                 return false;
             }
             plugin.guIs.OpenAdmin(player, dataConf.getConfigurationSection("towns." + stringUUID).
@@ -433,9 +437,9 @@ public class Commands implements CommandExecutor {
                 Long usertime = user.getLastLogin();
                 Long currentTimeMillis = System.currentTimeMillis();
                 if (currentTimeMillis - usertime > time) {
-                    plugin.clickItem.removePlayer(players, Bukkit.getOfflinePlayer(UUID.fromString(s)),
+                    plugin.clickItem.removePlayer(players, s, user.getDisplayName(),
                             data, playerinfo, a);
-                    System.console().printf(Bukkit.getOfflinePlayer(UUID.fromString(s)) + " removed");
+                    System.console().printf(Bukkit.getServer().getOfflinePlayer(UUID.fromString(s)) + " removed");
                 }
             }
             conf.save(data, file, "data.yml");
@@ -496,12 +500,13 @@ public class Commands implements CommandExecutor {
         File file1 = plugin.playerinfo;
         FileConfiguration playerinfo = conf.load(file1);
 
-        if (!data.isConfigurationSection("towns." + uuid)) {
+        if (!data.isConfigurationSection("towns." + uuid) || (playerinfo.getString("players." + uuid) == null)) {
             return false;
         }
 
         List<String> pl = new ArrayList<>();
         List<String> players = data.getConfigurationSection("towns." + uuid).getStringList("players");
+        players.add(uuid);
 
         for (String a : players) {
             if (playerinfo.getString("players." + a).equalsIgnoreCase(uuid)) {

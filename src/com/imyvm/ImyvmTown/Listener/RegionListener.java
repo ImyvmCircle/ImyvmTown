@@ -53,6 +53,10 @@ public class RegionListener implements Listener {
         Region region = new Region(plugin);
         File file = new File(plugin.getDataFolder(), "data.yml");
         FileConfiguration data = configuration.load(file);
+
+        if (!data.isConfigurationSection("towns")) {
+            return region;
+        }
         Set<String> towns = data.getConfigurationSection("towns").getKeys(true);
 
         for (String a : towns) {

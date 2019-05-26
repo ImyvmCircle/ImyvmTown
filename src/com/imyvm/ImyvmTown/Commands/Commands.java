@@ -58,6 +58,12 @@ public class Commands implements CommandExecutor {
             return true;
         }
         if (args[0].equalsIgnoreCase("create")) {
+            if (!map.containsKey(player.getUniqueId())) {
+                return false;
+            }
+            if (!map.get(player.getUniqueId()).equalsIgnoreCase("Create")) {
+                return false;
+            }
             File file = new File(plugin.getDataFolder(), "applyInfo.yml");
             FileConfiguration data = conf.load(file);
 
@@ -561,8 +567,11 @@ public class Commands implements CommandExecutor {
         }
         if (type.equalsIgnoreCase("location1") || type.equalsIgnoreCase("location2")) {
             config.set("locationstatus", "待审核");
-            if (type.equalsIgnoreCase("location2")) {
-                String message = "[竹萌村落] 你有新的村落范围待审核: " + config.getString("name");
+            Location location1 = (Location) config.get("location1");
+            Location location2 = (Location) config.get("location2");
+            if (type.equalsIgnoreCase("location2") && location1 != null && location2 != null) {
+                String message = "[竹萌村落] 你有新的村落范围待审核: " + config.getString("name") +
+                        "\n[范围] World:" + location1.getWorld() + "X1:" + location1.getBlockX() + ",Z1:" + location1.getBlockZ() + "~World:" + location2.getWorld() + "X2:" + location2.getBlockX() + ",Z2:" + location2.getBlockZ();
                 CompletableFuture.runAsync(() -> {
                     webHook.sendMessage(plugin.config.getString("Token-ID"),
                             ChatColor.stripColor(message.replace("\n", "\\n")));
@@ -579,16 +588,13 @@ public class Commands implements CommandExecutor {
 
         double maxX = Math.max(firstPoint.getX(), secondPoint.getX());
         double maxY = Math.max(firstPoint.getY(), secondPoint.getY());
-        double maxZ = Math.max(firstPoint.getZ(), secondPoint.getZ());
 
         double minX = Math.min(firstPoint.getX(), secondPoint.getX());
         double minY = Math.min(firstPoint.getY(), secondPoint.getY());
-        double minZ = Math.min(firstPoint.getZ(), secondPoint.getZ());
 
         return loc.getWorld().getUID().equals(worldUniqueId)
                 && loc.getX() > minX && loc.getX() < maxX
-                && loc.getY() > minY && loc.getY() < maxY
-                && loc.getZ() > minZ && loc.getZ() < maxZ;
+                && loc.getY() > minY && loc.getY() < maxY;
     }
 
 }

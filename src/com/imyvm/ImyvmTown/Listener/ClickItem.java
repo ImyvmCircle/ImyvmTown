@@ -763,9 +763,10 @@ public class ClickItem implements Listener {
                 event.setCancelled(true);
             }
             if (ChatColor.stripColor(itemMeta.getDisplayName()).equalsIgnoreCase("退出村落")) {
+                event.setCancelled(true);
+                player.updateInventory();
                 if (player.getUniqueId().toString().equalsIgnoreCase(StringUUID)) {
                     player.sendMessage("村长不能退出！");
-                    event.setCancelled(true);
                     return;
                 }
                 List<String> players = dataConf.getConfigurationSection("towns." + StringUUID).
@@ -789,7 +790,6 @@ public class ClickItem implements Listener {
                         conf.save(dataConf, data, "data.yml");
                         conf.save(datainfo, playerinfo, "playerInfo.yml");
                         player.closeInventory();
-                        event.setCancelled(true);
 
                         if (Bukkit.getServer().getOfflinePlayer(UUID.fromString(StringUUID)).isOnline()) {
                             Bukkit.getServer().getOfflinePlayer(UUID.fromString(StringUUID)).getPlayer().
@@ -802,19 +802,19 @@ public class ClickItem implements Listener {
                         return;
                     }
                     map.remove(player.getUniqueId());
+                    return;
                 }
 
                 map.put(player.getUniqueId(), player.getUniqueId().toString());
                 player.sendMessage("§f你将花费§4" + plugin.config.getDouble("LeaveFee") + " §fD退出该村落，请再点击一次确定退出");
                 plugin.guIs.OpenPlayerGUI(player, dataConf.getConfigurationSection("towns." + StringUUID)
                         .getString("name") + " §2村落系统", StringUUID);
-                event.setCancelled(true);
-
             }
 
             if (ChatColor.stripColor(itemMeta.getDisplayName()).equalsIgnoreCase("返回")) {
-                player.performCommand("itown");
                 event.setCancelled(true);
+                player.updateInventory();
+                player.performCommand("itown");
                 return;
             }
 
@@ -875,8 +875,41 @@ public class ClickItem implements Listener {
             if (ChatColor.stripColor(itemMeta.getDisplayName()).equalsIgnoreCase("村落创建")) {
                 event.setCancelled(true);
                 player.updateInventory();
-                player.closeInventory();
-                player.performCommand("itown create");
+
+                File playerinfo = plugin.playerinfo;
+                FileConfiguration datainfo = conf.load(playerinfo);
+
+                if (datainfo.getString("players." + player.getUniqueId().toString()) != null) {
+                    player.sendMessage("§4你已加入村落或正在申请村落！");
+                    return;
+                }
+
+                Map<UUID, String> map = plugin.commands.map;
+
+                if (map.containsKey(player.getUniqueId())) {
+                    if (map.get(player.getUniqueId()).equalsIgnoreCase("create" +
+                            player.getUniqueId().toString())) {
+                        double fee = plugin.config.getDouble("CreateFee");
+                        if (!economy.has(player, fee)) {
+                            player.sendMessage("§4你没有足够的余额申请创建村落");
+                            return;
+                        }
+                        economy.withdrawPlayer(player, fee);
+                        economy.depositPlayer(Bukkit.getServer().getOfflinePlayer(UUID.
+                                fromString(plugin.config.getString("TradeUUID"))), fee);
+
+                        map.remove(player.getUniqueId());
+                        map.put(player.getUniqueId(), "Create");
+                        player.closeInventory();
+                        player.performCommand("itown create");
+                        return;
+                    }
+                    map.remove(player.getUniqueId());
+                    return;
+                }
+                map.put(player.getUniqueId(), "create" + player.getUniqueId().toString());
+                player.sendMessage("§f你将花费§4" + plugin.config.getDouble("CreateFee") + " §fD申请创建村落，请再点击一次确定创建");
+                player.performCommand("itown");
                 return;
             }
             if (ChatColor.stripColor(itemMeta.getDisplayName()).equalsIgnoreCase("村落管理")) {
@@ -946,8 +979,8 @@ public class ClickItem implements Listener {
                     return;
                 }
                 map.remove(player.getUniqueId());
+                return;
             }
-
             map.put(player.getUniqueId(), uuid);
             player.sendMessage("请再点击一次确定删除");
             plugin.guIs.OpenPlayerManagerGUI(player, "§2人员管理", StringUUID, "点击移除");
@@ -999,6 +1032,7 @@ public class ClickItem implements Listener {
                     return;
                 }
                 map.remove(player.getUniqueId());
+                return;
             }
 
             map.put(player.getUniqueId(), uuid);

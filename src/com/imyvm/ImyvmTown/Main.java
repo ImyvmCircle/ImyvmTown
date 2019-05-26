@@ -61,6 +61,7 @@ public class Main extends JavaPlugin {
         config.addDefault("Token-ID", "XXX");
         config.addDefault("JoinFee", 1000);
         config.addDefault("LeaveFee", 1000);
+        config.addDefault("CreateFee", 10);
 
         rewardsInfo.options().copyDefaults(true);
         config.options().copyDefaults(true);

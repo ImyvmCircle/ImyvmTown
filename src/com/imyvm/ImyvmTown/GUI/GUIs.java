@@ -2,6 +2,7 @@ package com.imyvm.ImyvmTown.GUI;
 
 import com.imyvm.ImyvmTown.Configuration;
 import com.imyvm.ImyvmTown.Main;
+import com.imyvm.ImyvmTown.Utils.HiddenStringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -43,10 +44,6 @@ public class GUIs {
         ItemStack itemStack10 = createItem("STRUCTURE_VOID", "§f村落列表", lore10);
         inv.setItem(10, itemStack10);
 
-        lore13.add("点击查看");
-        ItemStack itemStack13 = createItem("STRUCTURE_VOID", "§f村落创建", lore13);
-        inv.setItem(13, itemStack13);
-
         lore16.add("点击查看");
         ItemStack itemStack16 = createItem("STRUCTURE_VOID", "§f申请中村落", lore16);
         inv.setItem(16, itemStack16);
@@ -73,6 +70,11 @@ public class GUIs {
             lore18.add("点击查看");
             ItemStack itemStack18 = createItem("BOOK", "§f村落审核", lore18);
             inv.setItem(18, itemStack18);
+        }
+        if (StringUUID == null) {
+            lore13.add("点击查看");
+            ItemStack itemStack13 = createItem("STRUCTURE_VOID", "§f村落创建", lore13);
+            inv.setItem(13, itemStack13);
         }
 
         player.openInventory(inv);
@@ -106,7 +108,7 @@ public class GUIs {
                 continue;
             }
             List<String> lores = new ArrayList<>();
-            lores.add(a);
+            lores.add(HiddenStringUtils.encodeString(a));
             lores.add("§f管理者: §7" + conf.getString("ApplyPlayer"));
             lores.add("§f人数: §7" + (conf.getStringList("players").size() + 1));
             lores.add("§f村落口号: §7" + conf.getString("declaration"));
@@ -152,14 +154,19 @@ public class GUIs {
             }
             List<String> lores = new ArrayList<>();
             ConfigurationSection config = data.getConfigurationSection("towns." + a);
-
+            if (config.getString("status") != null && inv_name.equals("§2申请村落列表")) {
+                continue;
+            }
+            if (!config.getString("locationstatus").equals("待审核") && inv_name.equals("§2申请村落管理列表")) {
+                continue;
+            }
             List<String> playersUUID = config.getStringList("players");
             List<String> playersName = new ArrayList<>();
             for (String uuid : playersUUID) {
                 playersName.add(Bukkit.getServer().getOfflinePlayer(UUID.fromString(uuid)).getName());
             }
 
-            lores.add(a);
+            lores.add(HiddenStringUtils.encodeString(a));
             lores.add("§f申请者: §7" + config.getString("ApplyPlayer"));
             lores.add("§f申请时间: §7" + config.getString("ApplyTime"));
             lores.add("§f村落简介: §7" + config.getString("range"));
@@ -198,7 +205,7 @@ public class GUIs {
         for (String uuid : playersUUID) {
             playersName.add(Bukkit.getServer().getOfflinePlayer(UUID.fromString(uuid)).getName());
         }
-        lores.add(uuidString);
+        lores.add(HiddenStringUtils.encodeString(uuidString));
         lores.add("§f申请者: §7" + config.getString("ApplyPlayer"));
         lores.add("§f申请时间: §7" + config.getString("ApplyTime"));
         lores.add("§f村落简介: §7" + config.getString("range"));
@@ -209,11 +216,10 @@ public class GUIs {
             if (config.get("location1") != null && config.get("location2") != null) {
                 Location location1 = (Location) config.get("location1");
                 Location location2 = (Location) config.get("location2");
-                DecimalFormat df = new DecimalFormat("0.0");
                 lores.add("§f村落范围");
                 lores.add("§fworld: §7" + location1.getWorld());
-                lores.add("§fX: §7" + df.format(location1.getX()) + " §fZ: §7" + df.format(location1.getZ()) +
-                        " §f~ X: §7" + df.format(location2.getX()) + " §fZ: §7" + df.format(location2.getZ()));
+                lores.add("§fX: §7" + location1.getBlockX() + " §fZ: §7" + location1.getBlockZ() +
+                        " §f~ X: §7" + location2.getBlockX() + " §fZ: §7" + location2.getBlockZ());
             }
         }
         // TODO add more information for es.
@@ -334,7 +340,7 @@ public class GUIs {
                 meta.setOwningPlayer(Bukkit.getPlayerExact(plugin.ess.getUser(UUID.fromString(a)).getName()));
             }
             List<String> lore = new ArrayList<>();
-            lore.add(a);
+            lore.add(HiddenStringUtils.encodeString(a));
             lore.add("§2点击审核");
             meta.setLore(lore);
             item.setItemMeta(meta);
@@ -399,7 +405,7 @@ public class GUIs {
                 meta.setOwningPlayer(Bukkit.getPlayerExact(plugin.ess.getUser(UUID.fromString(uuid)).getName()));
             }
             List<String> lore = new ArrayList<>();
-            lore.add(uuid);
+            lore.add(HiddenStringUtils.encodeString(uuid));
             lore.add(s);
             meta.setLore(lore);
             item.setItemMeta(meta);

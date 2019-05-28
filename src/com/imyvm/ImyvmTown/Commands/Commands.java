@@ -565,6 +565,8 @@ public class Commands implements CommandExecutor {
             conf.save(data, file2, "data.yml");
             return true;
         }
+        config.set(type, location);
+        conf.save(applyinfo, file, "applyInfo.yml");
         if (type.equalsIgnoreCase("location1") || type.equalsIgnoreCase("location2")) {
             config.set("locationstatus", "待审核");
             Location location1 = (Location) config.get("location1");
@@ -578,8 +580,6 @@ public class Commands implements CommandExecutor {
                 });
             }
         }
-        config.set(type, location);
-        conf.save(applyinfo, file, "applyInfo.yml");
         return true;
     }
 

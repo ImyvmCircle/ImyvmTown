@@ -4,6 +4,7 @@ import com.earth2me.essentials.User;
 import com.imyvm.ImyvmTown.Configuration;
 import com.imyvm.ImyvmTown.Discord.WebHook;
 import com.imyvm.ImyvmTown.Main;
+import com.imyvm.ImyvmTown.Utils.HiddenStringUtils;
 import com.imyvm.ImyvmTown.Utils.JSONMessage;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -64,7 +65,7 @@ public class ClickItem implements Listener {
             ItemStack itemStack = event.getCurrentItem();
             ItemMeta itemMeta = itemStack.getItemMeta();
             List<String> lores = itemMeta != null ? itemMeta.getLore() : null;
-            String uuidString = lores != null ? lores.get(0) : null;
+            String uuidString = lores != null ? HiddenStringUtils.extractHiddenString(lores.get(0)) : null;
 
             if (ChatColor.stripColor(itemMeta != null ? itemMeta.getDisplayName() : null).equalsIgnoreCase("返回")) {
                 plugin.guIs.OpenMainGUI(player, "§2村落主菜单");
@@ -164,7 +165,7 @@ public class ClickItem implements Listener {
             ItemStack itemStack = event.getCurrentItem();
             ItemMeta itemMeta = itemStack.getItemMeta();
             List<String> lores = itemMeta.getLore();
-            String uuidString = lores.get(0);
+            String uuidString = HiddenStringUtils.extractHiddenString(lores.get(0));
 
             if (ChatColor.stripColor(itemMeta.getDisplayName()).equalsIgnoreCase("返回")) {
                 plugin.guIs.OpenMainGUI(player, "§2村落主菜单");
@@ -243,7 +244,7 @@ public class ClickItem implements Listener {
             Inventory inventory1 = event.getClickedInventory();
             ItemStack itemStack1 = inventory1.getItem(0);
             ItemMeta itemMeta1 = itemStack1.getItemMeta();
-            String stringUUID = itemMeta1.getLore().get(0);
+            String stringUUID = HiddenStringUtils.extractHiddenString(itemMeta1.getLore().get(0));
 
             ConfigurationSection config = data.getConfigurationSection("towns." + stringUUID);
             ConfigurationSection dataconfig = dataconf.getConfigurationSection("towns." + stringUUID);
@@ -510,8 +511,11 @@ public class ClickItem implements Listener {
 
             if (datainfo.getString("players." + player.getUniqueId().toString()) == null) {
                 List<String> ApplyPlayers = new ArrayList<>();
-                if (!(dataConf.getConfigurationSection("towns." + lores.get(0)).getStringList("ApplyPlayers") == null)) {
-                    ApplyPlayers = dataConf.getConfigurationSection("towns." + lores.get(0)).getStringList("ApplyPlayers");
+                if (!(dataConf.getConfigurationSection("towns." +
+                        HiddenStringUtils.extractHiddenString(lores.get(0))).
+                        getStringList("ApplyPlayers") == null)) {
+                    ApplyPlayers = dataConf.getConfigurationSection("towns." + HiddenStringUtils.
+                            extractHiddenString(lores.get(0))).getStringList("ApplyPlayers");
                 }
                 if (ApplyPlayers.contains(player.getUniqueId().toString())) {
                     player.sendMessage("你已经提交过该申请！");
@@ -519,23 +523,27 @@ public class ClickItem implements Listener {
                     return;
                 }
                 ApplyPlayers.add(player.getUniqueId().toString());
-                dataConf.getConfigurationSection("towns." + lores.get(0)).set("ApplyPlayers", ApplyPlayers);
+                dataConf.getConfigurationSection("towns." + HiddenStringUtils.
+                        extractHiddenString(lores.get(0))).set("ApplyPlayers", ApplyPlayers);
                 conf.save(dataConf, data, "data.yml");
                 player.sendMessage("申请提交成功");
 
-                if (Bukkit.getServer().getOfflinePlayer(UUID.fromString(lores.get(0))).isOnline()) {
-                    Bukkit.getServer().getOfflinePlayer(UUID.fromString(lores.get(0))).getPlayer().
+                if (Bukkit.getServer().getOfflinePlayer(UUID.fromString(HiddenStringUtils.extractHiddenString(lores.get(0)))).isOnline()) {
+                    Bukkit.getServer().getOfflinePlayer(UUID.fromString(HiddenStringUtils.extractHiddenString(lores.get(0)))).getPlayer().
                             sendMessage("[§2竹萌村落§r] " + player.getDisplayName() + "申请加入村落");
                 } else {
-                    sendMail("[§2竹萌村落§r] " + player.getDisplayName() + "申请加入村落", UUID.fromString(lores.get(0)));
+                    sendMail("[§2竹萌村落§r] " + player.getDisplayName() + "申请加入村落",
+                            UUID.fromString(HiddenStringUtils.extractHiddenString(lores.get(0))));
                 }
 
                 event.setCancelled(true);
                 return;
             }
-            if (datainfo.getString("players." + player.getUniqueId().toString()).equalsIgnoreCase(lores.get(0))) {
+            if (datainfo.getString("players." + player.getUniqueId().toString()).
+                    equalsIgnoreCase(HiddenStringUtils.extractHiddenString(lores.get(0)))) {
                 plugin.guIs.OpenPlayerGUI(player, dataConf.getConfigurationSection("towns." +
-                        lores.get(0)).getString("name") + " §2村落系统", lores.get(0));
+                        HiddenStringUtils.extractHiddenString(lores.get(0)))
+                        .getString("name") + " §2村落系统", HiddenStringUtils.extractHiddenString(lores.get(0)));
                 event.setCancelled(true);
                 return;
             }
@@ -594,7 +602,7 @@ public class ClickItem implements Listener {
                 ItemStack itemStack1 = inventory1.getItem(0);
                 ItemMeta itemMeta1 = itemStack1.getItemMeta();
 
-                String uuid = itemMeta1.getLore().get(0);
+                String uuid = HiddenStringUtils.extractHiddenString(itemMeta1.getLore().get(0));
                 // SkullMeta meta = (SkullMeta) itemMeta1;
                 // OfflinePlayer player1 = meta.getOwningPlayer();
 
@@ -959,7 +967,7 @@ public class ClickItem implements Listener {
                 return;
             }
 
-            String uuid = itemMeta.getLore().get(0);
+            String uuid = HiddenStringUtils.extractHiddenString(itemMeta.getLore().get(0));
             String name = itemMeta.getDisplayName();
 
             String StringUUID = playerinfo.getString("players." + player.getUniqueId().toString());
@@ -1010,7 +1018,7 @@ public class ClickItem implements Listener {
                 return;
             }
 
-            String uuid = itemMeta.getLore().get(0);
+            String uuid = HiddenStringUtils.extractHiddenString(itemMeta.getLore().get(0));
             // String name = itemMeta.getDisplayName();
 
             String StringUUID = player.getUniqueId().toString();
